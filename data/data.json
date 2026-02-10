@@ -1,0 +1,94 @@
+{
+  "datasets": [
+    {
+      "name": "Donnees des elections agregees (resultats par bureau de vote, presidentielles incluses)",
+      "topic": "elections",
+      "url": "https://www.data.gouv.fr/datasets/donnees-des-elections-agregees"
+    },
+    {
+      "name": "Population (sexe, age, PCS) - niveaux geographiques dont departement",
+      "topic": "population",
+      "url": "https://www.data.gouv.fr/datasets/population-3"
+    },
+    {
+      "name": "Menages - niveaux geographiques dont departement",
+      "topic": "menages",
+      "url": "https://www.data.gouv.fr/datasets/menages"
+    },
+    {
+      "name": "Famille - niveaux geographiques dont departement",
+      "topic": "famille",
+      "url": "https://www.data.gouv.fr/datasets/famille"
+    },
+    {
+      "name": "Population active et chomage - niveaux geographiques dont departement",
+      "topic": "emploi_chomage",
+      "url": "https://www.data.gouv.fr/datasets/population-active-et-chomage"
+    },
+    {
+      "name": "Diplomes et formation - niveaux geographiques dont departement",
+      "topic": "education",
+      "url": "https://www.data.gouv.fr/datasets/diplomes-et-formation/"
+    },
+    {
+      "name": "Revenus et pauvrete des menages aux niveaux national et local (FiLoSoFi)",
+      "topic": "niveau_de_vie",
+      "url": "https://www.data.gouv.fr/fr/datasets/revenus-et-pauvrete-des-menages-aux-niveaux-national-et-local-revenus-localises-sociaux-et-fiscaux/"
+    },
+    {
+      "name": "L'impot sur le revenu par collectivite territoriale (IRCOM)",
+      "topic": "impots",
+      "url": "https://www.data.gouv.fr/datasets/limpot-sur-le-revenu-par-collectivite-territoriale-ircom"
+    },
+    {
+      "name": "Les populations immigrees par departement de 1968 a 2021 (France metropolitaine)",
+      "topic": "immigration",
+      "url": "https://www.immigration.interieur.gouv.fr/Info-ressources/Actualites/L-actu-immigration/Les-populations-immigrees-par-departement-de-1968-a-2021-en-France-metropolitaine"
+    },
+    {
+      "name": "Bases statistiques communale, departementale et regionale de la delinquance enregistree (SSMSI)",
+      "topic": "insecurite",
+      "url": "https://www.data.gouv.fr/en/datasets/bases-statistiques-communale-departementale-et-regionale-de-la-delinquance-enregistree-par-la-police-et-la-gendarmerie-nationales/"
+    },
+    {
+      "name": "Logements - niveaux geographiques dont departement",
+      "topic": "logement",
+      "url": "https://www.data.gouv.fr/datasets/logements-1"
+    },
+    {
+      "name": "Logements sociaux et bailleurs par departement",
+      "topic": "logement_social",
+      "url": "https://www.data.gouv.fr/datasets/logements-sociaux-et-bailleurs-par-departement"
+    },
+    {
+      "name": "Logements et logements sociaux dans les departements",
+      "topic": "logement_social_contexte",
+      "url": "https://www.data.gouv.fr/datasets/logements-et-logements-sociaux-dans-les-departements-1"
+    },
+    {
+      "name": "Naissances mensuelles (par departement de residence de la mere)",
+      "topic": "naissances",
+      "url": "https://www.data.gouv.fr/datasets/naissances-mensuelles"
+    },
+    {
+      "name": "Creations d'entreprises au niveau departemental, regional et national par forme legale detaillee",
+      "topic": "entreprises_creations_forme_legale",
+      "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-au-niveau-departemental-regional-et-national-par-forme-legale-detaillee"
+    },
+    {
+      "name": "Creations d'entreprises et d'etablissements au niveau departemental, regional et national par secteur d'activite (A21) et forme legale",
+      "topic": "entreprises_creations_secteur",
+      "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-et-detablissements-au-niveau-departemental-regional-et-national-par-secteur-dactivite-a21-et-forme-legale"
+    },
+    {
+      "name": "Ref - Liste des departements (inclut la superficie)",
+      "topic": "geographie_superficie",
+      "url": "https://data-interne.ademe.fr/datasets/ref-liste-des-departements"
+    },
+    {
+      "name": "Esperance de vie en 2025 (comparaisons departementales)",
+      "topic": "sante_esperance_vie",
+      "url": "https://www.insee.fr/fr/statistiques/2012749"
+    }
+  ]
+}
