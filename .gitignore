@@ -1,0 +1,7 @@
+.env
+.env.local
+.env.prod
+
+java_opts.txt
+
+/etl/src/data/raw/

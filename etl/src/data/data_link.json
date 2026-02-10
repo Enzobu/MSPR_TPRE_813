@@ -81,6 +81,51 @@
       "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-et-detablissements-au-niveau-departemental-regional-et-national-par-secteur-dactivite-a21-et-forme-legale"
     },
     {
+      "name": "Taux de participation aux elections presidentielles (par departement)",
+      "topic": "participation_elections",
+      "url": "https://www.data.gouv.fr/datasets/taux-de-participation-aux-elections-presidentielles-2"
+    },
+    {
+      "name": "Series regionales et departementales sur les offres et demandes d'emploi",
+      "topic": "emploi_demandeurs_offres",
+      "url": "https://www.data.gouv.fr/datasets/series-regionales-et-departementales-sur-les-offres-et-demandes-d-emploi-30378417"
+    },
+    {
+      "name": "RSA et PA - Repartition des allocataires selon l'age [Departement]",
+      "topic": "aides_sociales_age",
+      "url": "https://www.data.gouv.fr/datasets/rsa-et-pa-repartition-des-allocataires-selon-lage-departement/"
+    },
+    {
+      "name": "PA - Repartition des allocataires selon le montant du revenu trimestriel [Departement]",
+      "topic": "aides_sociales_montant",
+      "url": "https://www.data.gouv.fr/datasets/pa-repartition-des-allocataires-selon-le-montant-du-revenu-trimestriel-departement"
+    },
+    {
+      "name": "Indicateur France Mobile - Etat et historique des deploiements DCC et 4G fixe",
+      "topic": "couverture_mobile",
+      "url": "https://www.data.gouv.fr/datasets/indicateur-france-mobile-etat-et-historique-des-deploiements-dcc-et-4g-fixe"
+    },
+    {
+      "name": "Demandes de valeurs foncieres geolocalisees (DVF)",
+      "topic": "immobilier_valeurs_foncieres",
+      "url": "https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/"
+    },
+    {
+      "name": "Deplacements domicile-travail",
+      "topic": "mobilite_domicile_travail",
+      "url": "https://www.data.gouv.fr/datasets/deplacements-domicile-travail"
+    },
+    {
+      "name": "Niveau de vie median et taux de pauvrete par statut d'occupation du logement",
+      "topic": "niveau_de_vie_statut_logement",
+      "url": "https://www.data.gouv.fr/datasets/niveau-de-vie-median-et-taux-de-pauvrete-par-statut-doccupation-du-logement/"
+    },
+    {
+      "name": "Serie historique du recensement de la population",
+      "topic": "population_historique",
+      "url": "https://www.data.gouv.fr/datasets/serie-historique-du-recensement-de-la-population"
+    },
+    {
       "name": "Ref - Liste des departements (inclut la superficie)",
       "topic": "geographie_superficie",
       "url": "https://data-interne.ademe.fr/datasets/ref-liste-des-departements"

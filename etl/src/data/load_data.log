@@ -1,0 +1,225 @@
+2026-02-10 14:20:25,208 | INFO | Demarrage chargement datasets | total=1 | timeout=15s | overwrite=False
+2026-02-10 14:20:25,886 | INFO | SKIP elections -> elections.csv (deja present)
+2026-02-10 14:20:25,887 | INFO | === Resume ===
+2026-02-10 14:20:25,887 | INFO | Downloaded: 0
+2026-02-10 14:20:25,887 | INFO | Skipped:    1
+2026-02-10 14:20:25,887 | INFO | Errors:     0
+2026-02-10 14:20:25,887 | INFO | Report:     /home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/download_report.json
+2026-02-10 14:20:25,887 | INFO | Logs:       /home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/load_data.log
+2026-02-10 14:20:41,460 | INFO | Demarrage chargement datasets | total=1 | timeout=30s | overwrite=True
+2026-02-10 14:20:41,904 | INFO | START elections -> elections.csv
+2026-02-10 14:20:42,196 | ERROR | ERR elections -> [Errno 13] Permission denied: '/home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/raw/elections.csv'
+Traceback (most recent call last):
+  File "/home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/load_data.py", line 274, in load_data
+    details = _download_file(download_url, output_path, timeout=timeout)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/load_data.py", line 196, in _download_file
+    with output_path.open("wb") as file:
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/raw/elections.csv'
+2026-02-10 14:20:42,207 | INFO | === Resume ===
+2026-02-10 14:20:42,207 | INFO | Downloaded: 0
+2026-02-10 14:20:42,207 | INFO | Skipped:    0
+2026-02-10 14:20:42,207 | INFO | Errors:     1
+2026-02-10 14:20:42,207 | INFO | Report:     /home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/download_report.json
+2026-02-10 14:20:42,207 | INFO | Logs:       /home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/load_data.log
+2026-02-10 13:21:36,866 | INFO | Demarrage chargement datasets | total=27 | timeout=30s | overwrite=False
+2026-02-10 13:21:37,971 | INFO | START elections -> elections.csv
+2026-02-10 13:24:04,629 | INFO | OK elections -> elections.csv | recu=359.7 MB | total=unknown
+2026-02-10 13:24:05,857 | INFO | START population -> population.bin
+2026-02-10 13:25:45,960 | INFO | Demarrage chargement datasets | total=27 | timeout=30s | overwrite=False
+2026-02-10 13:25:46,984 | INFO | SKIP elections -> elections.csv (deja present)
+2026-02-10 13:25:48,101 | INFO | SKIP population -> population.bin (deja present)
+2026-02-10 13:25:48,900 | INFO | START menages -> menages.bin
+2026-02-10 13:26:40,030 | INFO | OK menages -> menages.bin | recu=34.3 MB | total=34.3 MB
+2026-02-10 13:26:40,735 | INFO | START famille -> famille.bin
+2026-02-10 13:26:56,081 | INFO | OK famille -> famille.bin | recu=11.0 MB | total=11.0 MB
+2026-02-10 13:26:57,085 | INFO | START emploi_chomage -> emploi_chomage.bin
+2026-02-10 13:27:21,622 | INFO | OK emploi_chomage -> emploi_chomage.bin | recu=17.6 MB | total=17.6 MB
+2026-02-10 13:27:22,618 | INFO | START education -> education.bin
+2026-02-10 13:27:58,500 | INFO | OK education -> education.bin | recu=24.7 MB | total=24.7 MB
+2026-02-10 13:27:59,857 | INFO | START niveau_de_vie -> niveau_de_vie.bin
+2026-02-10 13:28:00,137 | INFO | OK niveau_de_vie -> niveau_de_vie.bin | recu=64.8 KB | total=unknown
+2026-02-10 13:28:01,074 | INFO | START impots -> impots.zip
+2026-02-10 13:28:27,831 | INFO | OK impots -> impots.zip | recu=16.7 MB | total=16.7 MB
+2026-02-10 13:28:28,192 | INFO | START immigration -> immigration.bin
+2026-02-10 13:28:29,175 | ERROR | ERR immigration -> 403 Client Error: Forbidden for url: https://www.immigration.interieur.gouv.fr/Info-ressources/Actualites/L-actu-immigration/Les-populations-immigrees-par-departement-de-1968-a-2021-en-France-metropolitaine
+Traceback (most recent call last):
+  File "/app/load_data.py", line 274, in load_data
+    details = _download_file(download_url, output_path, timeout=timeout)
+  File "/app/load_data.py", line 188, in _download_file
+    response.raise_for_status()
+  File "/usr/local/lib/python3.10/dist-packages/requests/models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://www.immigration.interieur.gouv.fr/Info-ressources/Actualites/L-actu-immigration/Les-populations-immigrees-par-departement-de-1968-a-2021-en-France-metropolitaine
+2026-02-10 13:28:30,831 | INFO | START insecurite -> insecurite.csv
+2026-02-10 13:28:32,727 | INFO | OK insecurite -> insecurite.csv | recu=338.0 KB | total=unknown
+2026-02-10 13:28:33,989 | INFO | START logement -> logement.bin
+2026-02-10 13:29:55,327 | ERROR | ERR logement -> HTTPSConnectionPool(host='api.insee.fr', port=443): Read timed out.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 903, in _error_catcher
+    yield
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1028, in _raw_read
+    data = self._fp_read(amt, read1=read1) if not fp_closed else b""
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1011, in _fp_read
+    return self._fp.read(amt) if amt is not None else self._fp.read()
+  File "/usr/lib/python3.10/http/client.py", line 465, in read
+    s = self.fp.read(amt)
+  File "/usr/lib/python3.10/socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+  File "/usr/lib/python3.10/ssl.py", line 1274, in recv_into
+    return self.read(nbytes, buffer)
+  File "/usr/lib/python3.10/ssl.py", line 1130, in read
+    return self._sslobj.read(len, buffer)
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/requests/models.py", line 820, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1257, in stream
+    data = self.read(amt=amt, decode_content=decode_content)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1112, in read
+    data = self._raw_read(amt)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1027, in _raw_read
+    with self._error_catcher():
+  File "/usr/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 908, in _error_catcher
+    raise ReadTimeoutError(self._pool, None, "Read timed out.") from e  # type: ignore[arg-type]
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='api.insee.fr', port=443): Read timed out.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/load_data.py", line 274, in load_data
+    details = _download_file(download_url, output_path, timeout=timeout)
+  File "/app/load_data.py", line 197, in _download_file
+    for chunk in response.iter_content(chunk_size=8192):
+  File "/usr/local/lib/python3.10/dist-packages/requests/models.py", line 826, in generate
+    raise ConnectionError(e)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.insee.fr', port=443): Read timed out.
+2026-02-10 13:29:56,667 | INFO | START logement_social -> logement_social.csv
+2026-02-10 13:29:57,033 | INFO | OK logement_social -> logement_social.csv | recu=6.8 KB | total=unknown
+2026-02-10 13:29:58,193 | INFO | START logement_social_contexte -> logement_social_contexte.csv
+2026-02-10 13:30:05,280 | INFO | OK logement_social_contexte -> logement_social_contexte.csv | recu=4.7 MB | total=unknown
+2026-02-10 13:30:05,936 | INFO | START naissances -> naissances.bin
+2026-02-10 13:30:06,805 | INFO | OK naissances -> naissances.bin | recu=73.9 KB | total=73.9 KB
+2026-02-10 13:30:07,349 | INFO | START entreprises_creations_forme_legale -> entreprises_creations_forme_legale.bin
+2026-02-10 13:30:07,740 | INFO | OK entreprises_creations_forme_legale -> entreprises_creations_forme_legale.bin | recu=60.8 KB | total=60.8 KB
+2026-02-10 13:30:09,736 | INFO | START entreprises_creations_secteur -> entreprises_creations_secteur.bin
+2026-02-10 13:31:28,353 | ERROR | ERR entreprises_creations_secteur -> HTTPSConnectionPool(host='api.insee.fr', port=443): Read timed out.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 903, in _error_catcher
+    yield
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1028, in _raw_read
+    data = self._fp_read(amt, read1=read1) if not fp_closed else b""
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1011, in _fp_read
+    return self._fp.read(amt) if amt is not None else self._fp.read()
+  File "/usr/lib/python3.10/http/client.py", line 465, in read
+    s = self.fp.read(amt)
+  File "/usr/lib/python3.10/socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+  File "/usr/lib/python3.10/ssl.py", line 1274, in recv_into
+    return self.read(nbytes, buffer)
+  File "/usr/lib/python3.10/ssl.py", line 1130, in read
+    return self._sslobj.read(len, buffer)
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/requests/models.py", line 820, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1257, in stream
+    data = self.read(amt=amt, decode_content=decode_content)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1112, in read
+    data = self._raw_read(amt)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 1027, in _raw_read
+    with self._error_catcher():
+  File "/usr/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/response.py", line 908, in _error_catcher
+    raise ReadTimeoutError(self._pool, None, "Read timed out.") from e  # type: ignore[arg-type]
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='api.insee.fr', port=443): Read timed out.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/load_data.py", line 274, in load_data
+    details = _download_file(download_url, output_path, timeout=timeout)
+  File "/app/load_data.py", line 197, in _download_file
+    for chunk in response.iter_content(chunk_size=8192):
+  File "/usr/local/lib/python3.10/dist-packages/requests/models.py", line 826, in generate
+    raise ConnectionError(e)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.insee.fr', port=443): Read timed out.
+2026-02-10 13:31:28,683 | INFO | START participation_elections -> participation_elections.%20ce%20fichier%20contient%20les%20informations%20utilis%c3%a9es%20pour%20construire%20l%27indice%20de%20gouvernance%20d%c3%a9martemental
+2026-02-10 13:31:28,696 | ERROR | ERR participation_elections -> HTTPSConnectionPool(host='datacat.datalocale.fr', port=443): Max retries exceeded with url: /file/415142/raw/fichier%20au%20format%20csv%20encod%C3%A9%20en%20UTF-8.%20Ce%20fichier%20contient%20les%20informations%20utilis%C3%A9es%20pour%20construire%20l%27indice%20de%20gouvernance%20d%C3%A9martemental (Caused by NameResolutionError("HTTPSConnection(host='datacat.datalocale.fr', port=443): Failed to resolve 'datacat.datalocale.fr' ([Errno -2] Name or service not known)"))
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/usr/lib/python3.10/socket.py", line 955, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -2] Name or service not known
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connection.py", line 759, in connect
+    self.sock = sock = self._new_conn()
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connection.py", line 211, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: HTTPSConnection(host='datacat.datalocale.fr', port=443): Failed to resolve 'datacat.datalocale.fr' ([Errno -2] Name or service not known)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+  File "/usr/local/lib/python3.10/dist-packages/urllib3/util/retry.py", line 535, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='datacat.datalocale.fr', port=443): Max retries exceeded with url: /file/415142/raw/fichier%20au%20format%20csv%20encod%C3%A9%20en%20UTF-8.%20Ce%20fichier%20contient%20les%20informations%20utilis%C3%A9es%20pour%20construire%20l%27indice%20de%20gouvernance%20d%C3%A9martemental (Caused by NameResolutionError("HTTPSConnection(host='datacat.datalocale.fr', port=443): Failed to resolve 'datacat.datalocale.fr' ([Errno -2] Name or service not known)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/load_data.py", line 274, in load_data
+    details = _download_file(download_url, output_path, timeout=timeout)
+  File "/app/load_data.py", line 187, in _download_file
+    response = requests.get(url, stream=True, timeout=timeout)
+  File "/usr/local/lib/python3.10/dist-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/requests/adapters.py", line 677, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='datacat.datalocale.fr', port=443): Max retries exceeded with url: /file/415142/raw/fichier%20au%20format%20csv%20encod%C3%A9%20en%20UTF-8.%20Ce%20fichier%20contient%20les%20informations%20utilis%C3%A9es%20pour%20construire%20l%27indice%20de%20gouvernance%20d%C3%A9martemental (Caused by NameResolutionError("HTTPSConnection(host='datacat.datalocale.fr', port=443): Failed to resolve 'datacat.datalocale.fr' ([Errno -2] Name or service not known)"))
+2026-02-10 13:31:29,812 | INFO | START emploi_demandeurs_offres -> emploi_demandeurs_offres.xls
+2026-02-10 13:31:31,697 | INFO | OK emploi_demandeurs_offres -> emploi_demandeurs_offres.xls | recu=93.0 KB | total=16.1 KB
+2026-02-10 13:31:33,194 | INFO | START aides_sociales_age -> aides_sociales_age.csv
+2026-02-10 13:31:43,716 | INFO | OK aides_sociales_age -> aides_sociales_age.csv | recu=40.4 MB | total=unknown
+2026-02-10 13:31:44,351 | INFO | START aides_sociales_montant -> aides_sociales_montant.csv
+2026-02-10 13:31:55,054 | INFO | OK aides_sociales_montant -> aides_sociales_montant.csv | recu=9.3 MB | total=unknown
+2026-02-10 13:31:56,161 | INFO | START couverture_mobile -> couverture_mobile.csv
+2026-02-10 13:31:57,169 | INFO | OK couverture_mobile -> couverture_mobile.csv | recu=116.6 KB | total=unknown
+2026-02-10 13:31:58,205 | INFO | START immobilier_valeurs_foncieres -> immobilier_valeurs_foncieres.gz

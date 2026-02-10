@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Donnees des elections agregees (resultats par bureau de vote, presidentielles incluses)",
+    "topic": "elections",
+    "status": "error",
+    "source_url": "https://www.data.gouv.fr/datasets/donnees-des-elections-agregees",
+    "error": "[Errno 13] Permission denied: '/home/enzo/Dev/02 00 20 - MSPR-TPRE-813/MSPR_TPRE_813/etl/src/data/raw/elections.csv'"
+  }
+]
