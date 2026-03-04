@@ -3,137 +3,146 @@
     {
       "name": "Donnees des elections agregees (resultats par bureau de vote, presidentielles incluses)",
       "topic": "elections",
-      "url": "https://www.data.gouv.fr/datasets/donnees-des-elections-agregees"
+      "pageUrl": "https://www.data.gouv.fr/datasets/donnees-des-elections-agregees",
+      "url": "https://object.files.data.gouv.fr/data-pipeline-open/elections/general_results.csv"
     },
     {
       "name": "Population (sexe, age, PCS) - niveaux geographiques dont departement",
       "topic": "population",
-      "url": "https://www.data.gouv.fr/datasets/population-3"
+      "url": "https://www.data.gouv.fr/datasets/population-3",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/population/DS_RP_POPULATION_COMP_2022_CSV_FR.zip"
     },
     {
       "name": "Menages - niveaux geographiques dont departement",
       "topic": "menages",
-      "url": "https://www.data.gouv.fr/datasets/menages"
+      "url": "https://www.data.gouv.fr/datasets/menages",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/menage/DS_RP_MENAGES_COMP_2022_data.csv"
     },
     {
       "name": "Famille - niveaux geographiques dont departement",
       "topic": "famille",
-      "url": "https://www.data.gouv.fr/datasets/famille"
+      "url": "https://www.data.gouv.fr/datasets/famille",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/famille/DS_RP_FAMILLE_COMP_2022_data.csv"
     },
     {
       "name": "Population active et chomage - niveaux geographiques dont departement",
       "topic": "emploi_chomage",
-      "url": "https://www.data.gouv.fr/datasets/population-active-et-chomage"
+      "url": "https://www.data.gouv.fr/datasets/population-active-et-chomage",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/emploi_chomage/DS_RP_EMPLOI_LR_COMP_2022_CSV_FR.zip"
     },
     {
       "name": "Diplomes et formation - niveaux geographiques dont departement",
       "topic": "education",
-      "url": "https://www.data.gouv.fr/datasets/diplomes-et-formation/"
+      "url": "https://www.data.gouv.fr/datasets/diplomes-et-formation/",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/education/DS_RP_DIPLOMES_PRINC_2022_CSV_FR.zip"
     },
     {
       "name": "Revenus et pauvrete des menages aux niveaux national et local (FiLoSoFi)",
       "topic": "niveau_de_vie",
-      "url": "https://www.data.gouv.fr/fr/datasets/revenus-et-pauvrete-des-menages-aux-niveaux-national-et-local-revenus-localises-sociaux-et-fiscaux/"
+      "url": "https://www.data.gouv.fr/fr/datasets/revenus-et-pauvrete-des-menages-aux-niveaux-national-et-local-revenus-localises-sociaux-et-fiscaux/",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/niveau_de_vie/base-filosofi-2017_CSV.zip"
     },
     {
       "name": "L'impot sur le revenu par collectivite territoriale (IRCOM)",
       "topic": "impots",
-      "url": "https://www.data.gouv.fr/datasets/limpot-sur-le-revenu-par-collectivite-territoriale-ircom"
+      "url": "https://www.data.gouv.fr/datasets/limpot-sur-le-revenu-par-collectivite-territoriale-ircom",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/impots/impots.zip"
     },
     {
       "name": "Les populations immigrees par departement de 1968 a 2021 (France metropolitaine)",
       "topic": "immigration",
-      "url": "https://www.immigration.interieur.gouv.fr/Info-ressources/Actualites/L-actu-immigration/Les-populations-immigrees-par-departement-de-1968-a-2021-en-France-metropolitaine"
+      "url": "https://www.immigration.interieur.gouv.fr/Info-ressources/Actualites/L-actu-immigration/Les-populations-immigrees-par-departement-de-1968-a-2021-en-France-metropolitaine",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/immigration/IM_119_immigres_par_departement_1968_2021.xlsx"
     },
     {
       "name": "Bases statistiques communale, departementale et regionale de la delinquance enregistree (SSMSI)",
       "topic": "insecurite",
-      "url": "https://www.data.gouv.fr/en/datasets/bases-statistiques-communale-departementale-et-regionale-de-la-delinquance-enregistree-par-la-police-et-la-gendarmerie-nationales/"
+      "url": "https://www.data.gouv.fr/en/datasets/bases-statistiques-communale-departementale-et-regionale-de-la-delinquance-enregistree-par-la-police-et-la-gendarmerie-nationales/",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/insecurite/donnee-dep-data.gouv-2025-geographie2025-produit-le2026-01-22.csv"
     },
     {
       "name": "Logements - niveaux geographiques dont departement",
       "topic": "logement",
-      "url": "https://www.data.gouv.fr/datasets/logements-1"
-    },
-    {
-      "name": "Logements sociaux et bailleurs par departement",
-      "topic": "logement_social",
-      "url": "https://www.data.gouv.fr/datasets/logements-sociaux-et-bailleurs-par-departement"
-    },
-    {
-      "name": "Logements et logements sociaux dans les departements",
-      "topic": "logement_social_contexte",
-      "url": "https://www.data.gouv.fr/datasets/logements-et-logements-sociaux-dans-les-departements-1"
+      "url": "https://www.data.gouv.fr/datasets/logements-1",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/logement/logement.zip"
     },
     {
       "name": "Naissances mensuelles (par departement de residence de la mere)",
       "topic": "naissances",
-      "url": "https://www.data.gouv.fr/datasets/naissances-mensuelles"
+      "url": "https://www.data.gouv.fr/datasets/naissances-mensuelles",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/naissances/DS_EC_NAIS_CSV_FR.zip"
     },
     {
       "name": "Creations d'entreprises au niveau departemental, regional et national par forme legale detaillee",
       "topic": "entreprises_creations_forme_legale",
-      "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-au-niveau-departemental-regional-et-national-par-forme-legale-detaillee"
+      "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-au-niveau-departemental-regional-et-national-par-forme-legale-detaillee",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/entreprises_creations_forme_legale/DS_SIDE_CREA_ENT_DEP_REG_NAT_CJ_2024_CSV_FR.zip"
     },
     {
       "name": "Creations d'entreprises et d'etablissements au niveau departemental, regional et national par secteur d'activite (A21) et forme legale",
       "topic": "entreprises_creations_secteur",
-      "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-et-detablissements-au-niveau-departemental-regional-et-national-par-secteur-dactivite-a21-et-forme-legale"
+      "url": "https://www.data.gouv.fr/datasets/creations-dentreprises-et-detablissements-au-niveau-departemental-regional-et-national-par-secteur-dactivite-a21-et-forme-legale",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/entreprises_creations_secteur/DS_SIDE_CREA_DEP_REG_NAT_2024_CSV_FR.zip"
     },
     {
       "name": "Taux de participation aux elections presidentielles (par departement)",
       "topic": "participation_elections",
-      "url": "https://www.data.gouv.fr/datasets/taux-de-participation-aux-elections-presidentielles-2"
-    },
-    {
-      "name": "Series regionales et departementales sur les offres et demandes d'emploi",
-      "topic": "emploi_demandeurs_offres",
-      "url": "https://www.data.gouv.fr/datasets/series-regionales-et-departementales-sur-les-offres-et-demandes-d-emploi-30378417"
+      "url": "https://www.data.gouv.fr/datasets/taux-de-participation-aux-elections-presidentielles-2",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/participation_elections/1f19e3bf-1a18-4e8e-b81e-566bdfde9b3e.json"
     },
     {
       "name": "RSA et PA - Repartition des allocataires selon l'age [Departement]",
       "topic": "aides_sociales_age",
-      "url": "https://www.data.gouv.fr/datasets/rsa-et-pa-repartition-des-allocataires-selon-lage-departement/"
+      "url": "https://www.data.gouv.fr/datasets/rsa-et-pa-repartition-des-allocataires-selon-lage-departement/",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/aides_sociales_age/rsa_ppa_s_agg_age_5_dep.csv"
     },
     {
       "name": "PA - Repartition des allocataires selon le montant du revenu trimestriel [Departement]",
       "topic": "aides_sociales_montant",
-      "url": "https://www.data.gouv.fr/datasets/pa-repartition-des-allocataires-selon-le-montant-du-revenu-trimestriel-departement"
+      "url": "https://www.data.gouv.fr/datasets/pa-repartition-des-allocataires-selon-le-montant-du-revenu-trimestriel-departement",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/aides_sociales_montant/rsa_s_revtrim_200_dep.csv"
     },
     {
       "name": "Indicateur France Mobile - Etat et historique des deploiements DCC et 4G fixe",
       "topic": "couverture_mobile",
-      "url": "https://www.data.gouv.fr/datasets/indicateur-france-mobile-etat-et-historique-des-deploiements-dcc-et-4g-fixe"
+      "url": "https://www.data.gouv.fr/datasets/indicateur-france-mobile-etat-et-historique-des-deploiements-dcc-et-4g-fixe",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/couverture_mobile/indicateur-france-mobile-dcc-4gf.csv"
     },
     {
       "name": "Demandes de valeurs foncieres geolocalisees (DVF)",
       "topic": "immobilier_valeurs_foncieres",
-      "url": "https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/"
+      "url": "https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/immobilier_valeurs_foncieres/full.csv.gz"
     },
     {
       "name": "Deplacements domicile-travail",
       "topic": "mobilite_domicile_travail",
-      "url": "https://www.data.gouv.fr/datasets/deplacements-domicile-travail"
+      "url": "https://www.data.gouv.fr/datasets/deplacements-domicile-travail",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/mobilite_domicile_travail/DS_RP_NAVETTES_PRINC_2022_CSV_FR.zip"
     },
     {
       "name": "Niveau de vie median et taux de pauvrete par statut d'occupation du logement",
       "topic": "niveau_de_vie_statut_logement",
-      "url": "https://www.data.gouv.fr/datasets/niveau-de-vie-median-et-taux-de-pauvrete-par-statut-doccupation-du-logement/"
+      "url": "https://www.data.gouv.fr/datasets/niveau-de-vie-median-et-taux-de-pauvrete-par-statut-doccupation-du-logement/",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/niveau_de_vie_statut_logement/DS_FILOSOFI_LOG_TP_NIVVIE_2021_CSV_FR.zip"
     },
     {
       "name": "Serie historique du recensement de la population",
       "topic": "population_historique",
-      "url": "https://www.data.gouv.fr/datasets/serie-historique-du-recensement-de-la-population"
+      "url": "https://www.data.gouv.fr/datasets/serie-historique-du-recensement-de-la-population",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/population_historique/DS_RP_SERIE_HISTORIQUE_2022_CSV_FR.zip"
     },
     {
       "name": "Ref - Liste des departements (inclut la superficie)",
       "topic": "geographie_superficie",
-      "url": "https://data-interne.ademe.fr/datasets/ref-liste-des-departements"
+      "url": "https://data-interne.ademe.fr/datasets/ref-liste-des-departements",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/geographie_superficie/ref-liste-des-departements.csv"
     },
     {
       "name": "Esperance de vie en 2025 (comparaisons departementales)",
       "topic": "sante_esperance_vie",
-      "url": "https://www.insee.fr/fr/statistiques/2012749"
+      "url": "https://www.insee.fr/fr/statistiques/2012749",
+      "pageUrl": "https://mspr813-csv.enzo-palermo.com/data/sante_esperance_vie/TCRD_050.xlsx"
     }
   ]
 }

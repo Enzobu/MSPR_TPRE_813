@@ -1,332 +1,516 @@
-"""Charge les datasets declares dans src/data/data_link.json.
-
-Le script:
-1) lit la liste des datasets,
-2) tente de resoudre une URL de ressource telechargeable (Data.gouv API),
-3) telecharge les fichiers dans src/data/raw,
-4) genere un rapport JSON dans src/data/download_report.json.
-"""
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse
+import csv
+import datetime as dt
+import io
 import json
-import logging
+import os
 import re
-import shutil
 import sys
 import time
+import zipfile
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable, Optional, Tuple
 
 import requests
+import psycopg2
+from psycopg2 import sql
 
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-RAW_DIR = DATA_DIR / "raw"
-LINK_FILE = DATA_DIR / "data_link.json"
-REPORT_FILE = DATA_DIR / "download_report.json"
-LOG_FILE = DATA_DIR / "load_data.log"
+DATA_LINK_PATH = Path("./data/data_link.json")
+RAW_DIR = Path("./data/raw")
+BRONZE_SCHEMA = "bronze"
 
-# Fallback pour faciliter la transition depuis l'arborescence actuelle.
-LEGACY_LINK_FILE = BASE_DIR.parent / "data" / "data_link.json"
+# Extensions qu'on considère comme "ressource de données" téléchargeable
+DATA_FILE_EXTS = (
+    ".csv",
+    ".tsv",
+    ".txt",
+    ".xlsx",
+    ".xls",
+    ".json",
+    ".geojson",
+    ".zip",
+)
 
-PREFERRED_EXTENSIONS = (".csv", ".parquet", ".json", ".xlsx", ".xls", ".zip")
-
-
-LOGGER = logging.getLogger("load_data")
-
-
-def _setup_logging() -> None:
-    """Configure des logs lisibles en console + fichier."""
-    LOGGER.setLevel(logging.INFO)
-    LOGGER.handlers.clear()
-
-    formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-
-    file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
-    file_handler.setFormatter(formatter)
-
-    LOGGER.addHandler(console_handler)
-    LOGGER.addHandler(file_handler)
-    LOGGER.propagate = False
+DEFAULT_TIMEOUT = 60
 
 
-def _ensure_data_dirs() -> None:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def _ensure_link_file() -> None:
-    """Garantit l'existence de src/data/data_link.json.
-
-    Si le fichier n'existe pas encore, on recopie automatiquement le fichier legacy
-    (data/data_link.json) quand il est disponible.
-    """
-    if LINK_FILE.exists():
-        return
-    if LEGACY_LINK_FILE.exists():
-        shutil.copy2(LEGACY_LINK_FILE, LINK_FILE)
-        LOGGER.info("data_link.json copie depuis %s", LEGACY_LINK_FILE)
-        return
-    raise FileNotFoundError(
-        f"Fichier introuvable: {LINK_FILE}. "
-        "Creez-le avec une cle 'datasets' contenant des objets {name, topic, url}."
-    )
-
-
-def _read_links() -> list[dict[str, Any]]:
-    with LINK_FILE.open("r", encoding="utf-8") as file:
-        payload = json.load(file)
-
-    datasets = payload.get("datasets", [])
-    if not isinstance(datasets, list):
-        raise ValueError("Le champ 'datasets' doit etre une liste.")
-    return datasets
-
-
-def _slug_from_data_gouv_dataset_url(url: str) -> str | None:
-    match = re.search(r"/datasets/([^/?#]+)", url)
-    return match.group(1) if match else None
-
-
-def _resolve_download_url(url: str, timeout: int) -> tuple[str, str]:
-    """Retourne (download_url, source_type).
-
-    source_type:
-    - 'resource': URL de ressource telechargeable resolue via API Data.gouv
-    - 'direct': URL fournie directement
-    """
-    if "data.gouv.fr" not in url:
-        return url, "direct"
-
-    slug = _slug_from_data_gouv_dataset_url(url)
-    if not slug:
-        return url, "direct"
-
-    api_url = f"https://www.data.gouv.fr/api/1/datasets/{slug}/"
-    try:
-        response = requests.get(api_url, timeout=timeout)
-        response.raise_for_status()
-        resources = response.json().get("resources", [])
-    except Exception:
-        return url, "direct"
-
-    if not resources:
-        return url, "direct"
-
-    # On privilegie les ressources avec extension explicite.
-    for resource in resources:
-        resource_url = resource.get("url", "")
-        if resource_url.lower().endswith(PREFERRED_EXTENSIONS):
-            return resource_url, "resource"
-
-    # Sinon on prend la premiere ressource disponible.
-    candidate = resources[0].get("url")
-    return (candidate, "resource") if candidate else (url, "direct")
-
-
-def _sanitize_filename(value: str) -> str:
-    return re.sub(r"[^a-zA-Z0-9_-]+", "_", value).strip("_") or "dataset"
-
-
-def _extension_from_url_or_headers(url: str, headers: dict[str, str]) -> str:
-    path_ext = Path(url.split("?")[0]).suffix.lower()
-    if path_ext:
-        return path_ext
-
-    content_type = headers.get("Content-Type", "").lower()
-    if "csv" in content_type:
-        return ".csv"
-    if "json" in content_type:
-        return ".json"
-    if "excel" in content_type or "spreadsheet" in content_type:
-        return ".xlsx"
-    if "zip" in content_type:
-        return ".zip"
-    return ".bin"
-
-
-def _format_bytes(size: int) -> str:
-    units = ["B", "KB", "MB", "GB", "TB"]
-    value = float(size)
-    for unit in units:
-        if value < 1024 or unit == units[-1]:
-            return f"{value:.1f} {unit}"
-        value /= 1024
-    return f"{size} B"
-
-
-def _print_progress(received: int, total: int | None, topic: str) -> None:
-    bar_size = 28
-    if total and total > 0:
-        ratio = min(received / total, 1.0)
-        filled = int(ratio * bar_size)
-        bar = "#" * filled + "-" * (bar_size - filled)
-        percent = f"{ratio * 100:6.2f}%"
-        total_text = _format_bytes(total)
-    else:
-        bar = "#" * (received // (512 * 1024) % (bar_size + 1))
-        bar = bar.ljust(bar_size, "-")
-        percent = "  n/a "
-        total_text = "unknown"
-
-    line = (
-        f"\r[{bar}] {percent} | "
-        f"{_format_bytes(received)} / {total_text} | {topic[:24]}"
-    )
-    sys.stdout.write(line)
-    sys.stdout.flush()
-
-
-def _download_file(url: str, output_path: Path, timeout: int) -> dict[str, Any]:
-    response = requests.get(url, stream=True, timeout=timeout)
-    response.raise_for_status()
-
-    total_size = int(response.headers.get("Content-Length", "0") or 0)
-    expected_size: int | None = total_size if total_size > 0 else None
-    received_size = 0
-    last_render_ts = time.time()
-    topic = output_path.stem
-
-    with output_path.open("wb") as file:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                file.write(chunk)
-                received_size += len(chunk)
-                now = time.time()
-                if now - last_render_ts >= 0.08:
-                    _print_progress(received_size, expected_size, topic)
-                    last_render_ts = now
-
-    _print_progress(received_size, expected_size, topic)
-    sys.stdout.write("\n")
-
+def _get_db_config() -> dict[str, Any]:
     return {
-        "status_code": response.status_code,
-        "content_type": response.headers.get("Content-Type"),
-        "size_bytes": output_path.stat().st_size,
-        "total_size_bytes": expected_size,
+        "host": os.getenv("POSTGRES_HOST", "postgres"),
+        "port": int(os.getenv("POSTGRES_PORT", "5432")),
+        "dbname": os.getenv("POSTGRES_DB", "mspr813"),
+        "user": os.getenv("POSTGRES_USER", "mspr813"),
+        "password": os.getenv("POSTGRES_PASSWORD", "s5t4v5"),
     }
 
 
-def load_data(limit: int | None = None, timeout: int = 30, overwrite: bool = False) -> None:
-    _ensure_data_dirs()
-    _setup_logging()
-    _ensure_link_file()
+def log(msg: str) -> None:
+    ts = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{ts}] {msg}", flush=True)
 
-    datasets = _read_links()
-    if limit is not None:
-        datasets = datasets[:limit]
 
-    LOGGER.info("Demarrage chargement datasets | total=%s | timeout=%ss | overwrite=%s", len(datasets), timeout, overwrite)
+def slugify(s: str) -> str:
+    s = s.strip().lower()
+    s = re.sub(r"[^\w\s-]", "", s, flags=re.UNICODE)
+    s = re.sub(r"[\s_-]+", "_", s, flags=re.UNICODE)
+    s = re.sub(r"^_+|_+$", "", s)
+    if not s:
+        s = "dataset"
+    return s
 
-    report: list[dict[str, Any]] = []
 
-    for index, dataset in enumerate(datasets, start=1):
-        name = str(dataset.get("name", f"dataset_{index}"))
-        topic = str(dataset.get("topic", f"topic_{index}"))
-        source_url = str(dataset.get("url", "")).strip()
+def safe_table_name(topic: str) -> str:
+    base = slugify(topic)
+    # table bronze: <topic>__raw
+    return f"{base}__raw"
 
-        if not source_url:
-            report.append(
-                {
-                    "name": name,
-                    "topic": topic,
-                    "status": "skipped",
-                    "reason": "missing_url",
-                }
-            )
+
+@dataclass
+class Dataset:
+    name: str
+    topic: str
+    url: str
+
+
+@dataclass
+class Resource:
+    resource_url: str
+    file_ext: str
+    title: str | None = None
+
+
+def load_datasets(path: Path) -> list[Dataset]:
+    if not path.exists():
+        raise FileNotFoundError(f"Fichier introuvable: {path}")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    out: list[Dataset] = []
+    for d in data.get("datasets", []):
+        out.append(Dataset(name=d["name"], topic=d["topic"], url=d["url"]))
+    return out
+
+
+def http_get(url: str, stream: bool = False) -> requests.Response:
+    headers = {
+        "User-Agent": "mspr813-bronze-loader/1.0",
+        "Accept": "*/*",
+    }
+    r = requests.get(url, headers=headers, timeout=DEFAULT_TIMEOUT, stream=stream)
+    r.raise_for_status()
+    return r
+
+
+def is_datagouv_dataset(url: str) -> Tuple[bool, Optional[str]]:
+    # ex: https://www.data.gouv.fr/datasets/menages
+    m = re.match(r"^https?://(www\.)?data\.gouv\.fr/(fr/)?datasets/([^/?#]+)", url)
+    if not m:
+        return (False, None)
+    slug = m.group(3)
+    return (True, slug)
+
+
+def choose_best_datagouv_resource(resources: list[dict[str, Any]]) -> Optional[Resource]:
+    """
+    Heuristique:
+    - priorise CSV, puis XLSX/XLS, puis ZIP, puis JSON/GeoJSON
+    - utilise de préférence "latest" ou "download_url" si présent, sinon "url"
+    """
+    scored: list[Tuple[int, Resource]] = []
+
+    def score(ext: str) -> int:
+        ext = ext.lower()
+        if ext == ".csv":
+            return 100
+        if ext in (".xlsx", ".xls"):
+            return 80
+        if ext == ".zip":
+            return 60
+        if ext in (".json", ".geojson"):
+            return 50
+        if ext in (".tsv", ".txt"):
+            return 40
+        return 10
+
+    def pick_url(res: dict[str, Any]) -> Optional[str]:
+        for k in ("latest", "download_url", "url"):
+            v = res.get(k)
+            if isinstance(v, str) and v.startswith("http"):
+                return v
+        return None
+
+    for res in resources:
+        u = pick_url(res)
+        if not u:
             continue
 
+        u_low = u.lower()
+        ext_found = None
+        for ext in DATA_FILE_EXTS:
+            if u_low.endswith(ext):
+                ext_found = ext
+                break
+
+        if not ext_found:
+            fmt = (res.get("format") or res.get("filetype") or "")
+            fmt = str(fmt).lower().strip(". ")
+            fmt_map = {
+                "csv": ".csv",
+                "xls": ".xls",
+                "xlsx": ".xlsx",
+                "json": ".json",
+                "geojson": ".geojson",
+                "zip": ".zip",
+                "tsv": ".tsv",
+            }
+            if fmt in fmt_map:
+                ext_found = fmt_map[fmt]
+
+        if ext_found:
+            scored.append((score(ext_found), Resource(resource_url=u, file_ext=ext_found, title=res.get("title"))))
+
+    if not scored:
+        return None
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored[0][1]
+
+
+def resolve_resource_url(dataset: Dataset) -> Optional[Resource]:
+    """
+    - Si data.gouv dataset => API obligatoire (pas de parsing HTML)
+    - Sinon => scan HTML (fallback) pour trouver un lien direct vers un fichier
+    """
+    is_dg, slug = is_datagouv_dataset(dataset.url)
+    if is_dg and slug:
+        api_url = f"https://www.data.gouv.fr/api/1/datasets/{slug}/"
+        log(f"[{dataset.topic}] data.gouv API -> {api_url}")
         try:
-            download_url, source_type = _resolve_download_url(source_url, timeout=timeout)
-            head_headers: dict[str, str] = {}
-            try:
-                head_resp = requests.head(download_url, allow_redirects=True, timeout=timeout)
-                head_headers = dict(head_resp.headers)
-            except Exception:
-                # Non bloquant: on tentera de deduire l'extension pendant le GET.
-                pass
+            j = http_get(api_url).json()
+            resources = j.get("resources", [])
+            if not isinstance(resources, list) or not resources:
+                log(f"[{dataset.topic}] Aucune ressource trouvée via l'API.")
+                return None
+            res = choose_best_datagouv_resource(resources)
+            if not res:
+                log(f"[{dataset.topic}] Ressources présentes mais aucune URL exploitable (csv/xlsx/zip/json).")
+            return res
+        except Exception as e:
+            log(f"[{dataset.topic}] Erreur API data.gouv: {e}")
+            return None
 
-            file_stem = _sanitize_filename(topic)
-            extension = _extension_from_url_or_headers(download_url, head_headers)
-            output_path = RAW_DIR / f"{file_stem}{extension}"
+    # Fallback HTML seulement pour NON-data.gouv
+    log(f"[{dataset.topic}] Fallback HTML scan -> {dataset.url}")
+    try:
+        html = http_get(dataset.url).text
+    except Exception as e:
+        log(f"[{dataset.topic}] Impossible de lire la page HTML: {e}")
+        return None
 
-            if output_path.exists() and not overwrite:
-                report.append(
-                    {
-                        "name": name,
-                        "topic": topic,
-                        "status": "skipped",
-                        "reason": "already_exists",
-                        "file": str(output_path),
-                    }
-                )
-                LOGGER.info("SKIP %s -> %s (deja present)", topic, output_path.name)
+    hrefs = re.findall(r'href="([^"]+)"', html, flags=re.IGNORECASE)
+    abs_links: list[str] = []
+    for h in hrefs:
+        if h.startswith("//"):
+            abs_links.append("https:" + h)
+        elif h.startswith("http://") or h.startswith("https://"):
+            abs_links.append(h)
+        elif h.startswith("/"):
+            base = re.match(r"^(https?://[^/]+)", dataset.url)
+            if base:
+                abs_links.append(base.group(1) + h)
+
+    for link in abs_links:
+        low = link.lower()
+        for ext in DATA_FILE_EXTS:
+            if low.endswith(ext):
+                return Resource(resource_url=link, file_ext=ext)
+    return None
+
+
+def download_resource(dataset: Dataset, res: Resource) -> Optional[Path]:
+    """
+    Télécharge la resource dans data/raw/<topic>/, retourne le chemin local.
+    """
+    topic_dir = RAW_DIR / slugify(dataset.topic)
+    topic_dir.mkdir(parents=True, exist_ok=True)
+
+    # Nom de fichier
+    now = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+    file_name = f"{slugify(dataset.topic)}_{now}{res.file_ext}"
+    out_path = topic_dir / file_name
+
+    log(f"[{dataset.topic}] Download -> {res.resource_url}")
+    try:
+        r = http_get(res.resource_url, stream=True)
+        with out_path.open("wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+        log(f"[{dataset.topic}] Saved -> {out_path}")
+        return out_path
+    except Exception as e:
+        log(f"[{dataset.topic}] Download failed: {e}")
+        return None
+
+
+def ensure_bronze_schema(conn) -> None:
+    with conn.cursor() as cur:
+        cur.execute(sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(sql.Identifier(BRONZE_SCHEMA)))
+    conn.commit()
+
+
+def sniff_delimiter(sample: str) -> str:
+    # CSV FR: souvent ';'
+    # Essayons simple: si ';' plus fréquent que ','
+    semi = sample.count(";")
+    comma = sample.count(",")
+    tab = sample.count("\t")
+    if tab > semi and tab > comma:
+        return "\t"
+    if semi > comma:
+        return ";"
+    return ","
+
+
+def read_csv_headers_and_rows(path: Path, max_preview_bytes: int = 200_000) -> Tuple[list[str], Iterable[list[str]], str]:
+    """
+    Retourne (headers, iterator_rows, delimiter) pour un fichier CSV/TSV/TXT.
+    Les lignes sont renvoyées en listes de string.
+    """
+    # Détermine delimiter avec un sample
+    with path.open("r", encoding="utf-8", errors="replace", newline="") as f:
+        sample = f.read(max_preview_bytes)
+    delim = "\t" if path.suffix.lower() == ".tsv" else sniff_delimiter(sample)
+
+    def row_iter() -> Iterable[list[str]]:
+        with path.open("r", encoding="utf-8", errors="replace", newline="") as f2:
+            reader = csv.reader(f2, delimiter=delim)
+            for row in reader:
+                yield ["" if v is None else str(v) for v in row]
+
+    it = row_iter()
+    try:
+        headers = next(it)
+    except StopIteration:
+        return ([], iter(()), delim)
+
+    # Clean headers
+    headers = [slugify(h) if h else f"col_{i+1}" for i, h in enumerate(headers)]
+    # dédoublonnage
+    seen: dict[str, int] = {}
+    uniq: list[str] = []
+    for h in headers:
+        if h not in seen:
+            seen[h] = 1
+            uniq.append(h)
+        else:
+            seen[h] += 1
+            uniq.append(f"{h}_{seen[h]}")
+    return (uniq, it, delim)
+
+
+def extract_first_datafile_from_zip(zip_path: Path) -> Optional[Path]:
+    """
+    Extrait le premier fichier exploitable du zip vers le même dossier.
+    """
+    try:
+        with zipfile.ZipFile(zip_path, "r") as z:
+            names = z.namelist()
+            candidates = [n for n in names if n.lower().endswith(DATA_FILE_EXTS) and not n.endswith("/")]
+            # priorise csv/xlsx
+            def rank(n: str) -> int:
+                nl = n.lower()
+                if nl.endswith(".csv"):
+                    return 100
+                if nl.endswith(".xlsx") or nl.endswith(".xls"):
+                    return 80
+                if nl.endswith(".json") or nl.endswith(".geojson"):
+                    return 60
+                if nl.endswith(".tsv") or nl.endswith(".txt"):
+                    return 50
+                return 10
+            candidates.sort(key=rank, reverse=True)
+            if not candidates:
+                return None
+            pick = candidates[0]
+            out_dir = zip_path.parent
+            out_path = out_dir / Path(pick).name
+            with z.open(pick) as src, out_path.open("wb") as dst:
+                dst.write(src.read())
+            return out_path
+    except Exception:
+        return None
+
+
+def create_bronze_table(conn, table: str, columns: list[str]) -> None:
+    cols = columns + ["_ingested_at", "_source_url", "_file_name", "_resource_url"]
+    with conn.cursor() as cur:
+        cur.execute(
+            sql.SQL("CREATE TABLE IF NOT EXISTS {}.{} ({});").format(
+                sql.Identifier(BRONZE_SCHEMA),
+                sql.Identifier(table),
+                sql.SQL(", ").join([sql.SQL("{} TEXT").format(sql.Identifier(c)) for c in cols]),
+            )
+        )
+    conn.commit()
+
+
+def copy_rows_to_bronze(
+    conn,
+    table: str,
+    columns: list[str],
+    rows: Iterable[list[str]],
+    dataset_url: str,
+    file_name: str,
+    resource_url: str,
+    batch_size: int = 5000,
+) -> int:
+    """
+    Charge via COPY en buffer CSV, par batch.
+    """
+    total = 0
+    cols = columns + ["_ingested_at", "_source_url", "_file_name", "_resource_url"]
+    copy_sql = sql.SQL("COPY {}.{} ({}) FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"', ESCAPE '\"')").format(
+        sql.Identifier(BRONZE_SCHEMA),
+        sql.Identifier(table),
+        sql.SQL(", ").join(sql.Identifier(c) for c in cols),
+    )
+
+    ingested_at = dt.datetime.now().isoformat(timespec="seconds")
+
+    def flush_batch(batch: list[list[str]]) -> int:
+        if not batch:
+            return 0
+        buf = io.StringIO()
+        w = csv.writer(buf, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+        for r in batch:
+            # pad / truncate
+            r2 = (r + [""] * len(columns))[: len(columns)]
+            r2 += [ingested_at, dataset_url, file_name, resource_url]
+            w.writerow(r2)
+        buf.seek(0)
+        with conn.cursor() as cur:
+            cur.copy_expert(copy_sql.as_string(conn), buf)
+        conn.commit()
+        return len(batch)
+
+    batch: list[list[str]] = []
+    for row in rows:
+        batch.append(["" if v is None else str(v) for v in row])
+        if len(batch) >= batch_size:
+            total += flush_batch(batch)
+            batch = []
+    total += flush_batch(batch)
+    return total
+
+
+def ingest_file_into_bronze(conn, dataset: Dataset, resource: Resource, file_path: Path) -> None:
+    topic = dataset.topic
+    table = safe_table_name(topic)
+
+    # si zip -> extraire
+    actual_path = file_path
+    if actual_path.suffix.lower() == ".zip":
+        extracted = extract_first_datafile_from_zip(actual_path)
+        if not extracted:
+            log(f"[{topic}] ZIP téléchargé mais aucun fichier data exploitable trouvé dedans.")
+            return
+        log(f"[{topic}] ZIP extracted -> {extracted}")
+        actual_path = extracted
+
+    ext = actual_path.suffix.lower()
+    if ext not in (".csv", ".tsv", ".txt"):
+        log(f"[{topic}] Format {ext} non géré pour chargement en bronze (CSV/TSV/TXT seulement).")
+        log(f"[{topic}] Le fichier est quand même conservé en raw: {actual_path}")
+        return
+
+    headers, row_iter, delim = read_csv_headers_and_rows(actual_path)
+    if not headers:
+        log(f"[{topic}] Fichier vide / headers introuvables: {actual_path}")
+        return
+
+    log(f"[{topic}] Detected delimiter: {repr(delim)} | columns: {len(headers)}")
+    ensure_bronze_schema(conn)
+    create_bronze_table(conn, table, headers)
+
+    # Recrée un iter rows avec le bon delimiter (on avait un iter déjà avancé),
+    # donc on relit le fichier correctement (simple et fiable).
+    def iter_rows() -> Iterable[list[str]]:
+        with actual_path.open("r", encoding="utf-8", errors="replace", newline="") as f:
+            reader = csv.reader(f, delimiter=delim)
+            first = True
+            for row in reader:
+                if first:
+                    first = False
+                    continue
+                yield row
+
+    inserted = copy_rows_to_bronze(
+        conn=conn,
+        table=table,
+        columns=headers,
+        rows=iter_rows(),
+        dataset_url=dataset.url,
+        file_name=actual_path.name,
+        resource_url=resource.resource_url,
+    )
+    log(f"[{topic}] Inserted rows: {inserted} into {BRONZE_SCHEMA}.{table}")
+
+
+def main() -> int:
+    try:
+        datasets = load_datasets(DATA_LINK_PATH)
+    except Exception as e:
+        log(f"Erreur lecture data_link.json: {e}")
+        return 1
+
+    db_cfg = _get_db_config()
+    log(f"DB -> host={db_cfg['host']} port={db_cfg['port']} db={db_cfg['dbname']} user={db_cfg['user']}")
+
+    try:
+        conn = psycopg2.connect(**db_cfg)
+    except Exception as e:
+        log(f"Connexion DB impossible: {e}")
+        return 2
+
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+    ok = 0
+    ko = 0
+
+    for ds in datasets:
+        log(f"=== Dataset: {ds.topic} | {ds.name} ===")
+        try:
+            res = resolve_resource_url(ds)
+            if not res:
+                log(f"[{ds.topic}] Aucune ressource téléchargeable trouvée. Skip.")
+                ko += 1
                 continue
 
-            LOGGER.info("START %s -> %s", topic, output_path.name)
-            details = _download_file(download_url, output_path, timeout=timeout)
-            report.append(
-                {
-                    "name": name,
-                    "topic": topic,
-                    "status": "downloaded",
-                    "source_url": source_url,
-                    "download_url": download_url,
-                    "source_type": source_type,
-                    "file": str(output_path),
-                    **details,
-                }
-            )
-            LOGGER.info(
-                "OK %s -> %s | recu=%s | total=%s",
-                topic,
-                output_path.name,
-                _format_bytes(int(details["size_bytes"])),
-                _format_bytes(int(details["total_size_bytes"])) if details["total_size_bytes"] else "unknown",
-            )
+            file_path = download_resource(ds, res)
+            if not file_path:
+                ko += 1
+                continue
 
-        except Exception as error:  # noqa: BLE001
-            report.append(
-                {
-                    "name": name,
-                    "topic": topic,
-                    "status": "error",
-                    "source_url": source_url,
-                    "error": str(error),
-                }
-            )
-            LOGGER.exception("ERR %s -> %s", topic, error)
+            ingest_file_into_bronze(conn, ds, res, file_path)
+            ok += 1
 
-    with REPORT_FILE.open("w", encoding="utf-8") as file:
-        json.dump(report, file, indent=2, ensure_ascii=True)
+            # petite pause pour éviter de hammer les serveurs si boucle grosse
+            time.sleep(0.5)
 
-    downloaded_count = sum(1 for item in report if item["status"] == "downloaded")
-    error_count = sum(1 for item in report if item["status"] == "error")
-    skipped_count = sum(1 for item in report if item["status"] == "skipped")
+        except Exception as e:
+            log(f"[{ds.topic}] Erreur inattendue: {e}")
+            ko += 1
 
-    LOGGER.info("=== Resume ===")
-    LOGGER.info("Downloaded: %s", downloaded_count)
-    LOGGER.info("Skipped:    %s", skipped_count)
-    LOGGER.info("Errors:     %s", error_count)
-    LOGGER.info("Report:     %s", REPORT_FILE)
-    LOGGER.info("Logs:       %s", LOG_FILE)
+    try:
+        conn.close()
+    except Exception:
+        pass
 
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Telecharge les datasets declares dans src/data/data_link.json")
-    parser.add_argument("--limit", type=int, default=None, help="Nombre max de datasets a traiter")
-    parser.add_argument("--timeout", type=int, default=30, help="Timeout HTTP en secondes")
-    parser.add_argument("--overwrite", action="store_true", help="Ecraser les fichiers deja telecharges")
-    return parser.parse_args()
+    log(f"Done. OK={ok} KO={ko}")
+    return 0 if ok > 0 else 3
 
 
 if __name__ == "__main__":
-    arguments = parse_args()
-    load_data(limit=arguments.limit, timeout=arguments.timeout, overwrite=arguments.overwrite)
+    raise SystemExit(main())
